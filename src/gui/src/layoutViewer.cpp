@@ -1259,7 +1259,11 @@ void LayoutViewer::boxesByLayer(dbMaster* master, LayerBoxes& boxes)
               continue;
             }
             via_transform.apply(box_rect);
-            boxes[layer].mterms.emplace_back(box_to_qrect(via_box));
+            boxes[layer].mterms.emplace_back(
+                QRect{box_rect.xMin(),
+                      box_rect.yMin(),
+                      box_rect.xMax() - box_rect.xMin(),
+                      box_rect.yMax() - box_rect.yMin()});
           }
         } else {
           dbTechLayer* layer = box->getTechLayer();
@@ -2307,8 +2311,8 @@ int LayoutViewer::coarseViewableResolution() const
 void LayoutViewer::exit()
 {
   viewer_thread_.exit();
-  while (!viewer_thread_.isFinished()) {
-    // wait for it to be done;
+  while (viewer_thread_.isRunning() && !viewer_thread_.isFinished()) {
+    // wait for it to be done
   }
 }
 
